@@ -1,60 +1,72 @@
 const loader = require('@grpc/proto-loader')
 const grpc = require('@grpc/grpc-js')
+const protos = loader.loadSync('protos/services.proto', { enums: String })
+const protolca = grpc.loadPackageDefinition(protos).protolca
 
-function printContent(dataService) {
+const URL = 'localhost:8080'
+
+function printContent() {
+  // print the IDs and names of the impact methods and product systems in the
+  // database
+
+  const data = new protolca.services.DataService(
+    URL, grpc.credentials.createInsecure())
 
   // impact methods
-  handle(dataService.getDescriptors({
-    type: 'IMPACT_METHOD'
-  }), method => {
-    console.log(`impact method: id = ${method.id}, name = ${method.name}`)
-  })
+  data.getDescriptors({ type: 'IMPACT_METHOD' })
+    .on('data', method =>
+      console.log(`impact method: id = ${method.id}, name = ${method.name}`))
 
   // product systems
-  handle(dataService.getDescriptors({
-    type: 'PRODUCT_SYSTEM'
-  }), system => {
-    console.log(`product system: id = ${system.id}, name = ${system.name}`)
-  })
+  data.getDescriptors({ type: 'PRODUCT_SYSTEM' })
+    .on('data', system =>
+      console.log(`product system: id = ${system.id}, name = ${system.name}`))
 }
 
-function handle(call, fn) {
-  call.on('data', fn)
-  call.on('error', err => {
-    console.log('ERROR: ', err)
+function calculationExample() {
+  // calculate a product system result
+
+  const results = new protolca.services.ResultService(
+    URL, grpc.credentials.createInsecure())
+
+  var setup = {
+    productSystem: { id: 'f2491025-6e05-467c-8721-6d19d3c7f2ed' },
+    impactMethod: { id: 'b05a312d-d4eb-4d99-93dd-8a59181c0887' },
+  }
+
+  results.calculate(setup, (err, response) => {
+
+    if (err) {
+      console.log('calculation failed', err)
+      return
+    }
+
+    const result = response.result
+    const impacts = results.getImpacts(result)
+    impacts.on('data', impact => {
+      const s = impact.impactCategory.name
+        + ': ' + impact.value
+        + ' ' + impact.impactCategory.refUnit
+      console.log(s)
+    })
+
+    // you should always dispose the result when you do
+    // not need it anymore; otherwise you leak memory
+    impacts.on('end', () => {
+      results.dispose(result, err => {
+        if (err) {
+          console.log('failed to dispose result', err)
+          return
+        }
+        console.log('disposed result')
+        // results.close()
+      })
+    })
   })
 }
 
 function main() {
-  const protos = loader.loadSync('protos/services.proto', {
-    enums: String
-  })
-  const protolca = grpc.loadPackageDefinition(protos).protolca
-  // console.log(protolca)
-
-  const dataService = new protolca.services.DataService(
-    'localhost:8080',
-    grpc.credentials.createInsecure())
-
-  // const call = data.getActors({})
-  // call.on('data', (actor) => console.log(actor.name))
-  // printContent(dataService)
-
-  const resultService = new protolca.services.ResultService(
-    'localhost:8080',
-    grpc.credentials.createInsecure())
-  resultService.calculate({
-    productSystem: { id: 'f2491025-6e05-467c-8721-6d19d3c7f2ed' },
-    impactMethod: { id: 'b05a312d-d4eb-4d99-93dd-8a59181c0887' }
-  }, (err, result) => {
-
-    
-    console.log(err, err)
-  })
-  /*
-
-console.log(result)
-*/
+  // printContent()
+  calculationExample()
 }
-
 main()
