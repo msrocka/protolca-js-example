@@ -30,8 +30,8 @@ function calculationExample() {
     URL, grpc.credentials.createInsecure())
 
   var setup = {
-    productSystem: { id: 'f2491025-6e05-467c-8721-6d19d3c7f2ed' },
-    impactMethod: { id: 'b05a312d-d4eb-4d99-93dd-8a59181c0887' },
+    productSystem: { id: '66344e38-411a-4996-8062-e92dd3cd211c' },
+    impactMethod: { id: '9a597be4-ce40-4acd-9ace-ca8edebce13f' },
   }
 
   results.calculate(setup, (err, response) => {
