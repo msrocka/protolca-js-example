@@ -1,4 +1,8 @@
+// Generated from olca-schema (https://github.com/GreenDelta/olca-schema).
+// DO NOT EDIT!
+
 syntax = "proto3";
+
 package protolca;
 
 option java_package = "org.openlca.proto.generated";
@@ -9,7 +13,7 @@ option go_package = ".;protolca";
 // An actor is a person or organisation.
 message Actor {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
@@ -63,7 +67,7 @@ message Actor {
 // A single allocation factor in a process.
 message AllocationFactor {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
@@ -114,7 +118,7 @@ enum AllocationType {
 // A setup for a product system calculation.
 message CalculationSetup {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
@@ -130,6 +134,11 @@ message CalculationSetup {
   // Indicates whether life cycle costs should be also calculated (optional).
   bool with_costs = 5;
 
+  // Indicates whether a regionalized result should be calculated or not. If
+  // this is set to true, the intervention matrix is indexed by (elementary
+  // flow, location) - pairs instead of just elementary flows. The LCI result
+  // then contains results for these pairs which can be then used in
+  // regionalized impact assessments.
   bool with_regionalization = 6;
 
   // The normalisation and weighting set for the calculation (optional).
@@ -197,7 +206,7 @@ enum CalculationType {
 // which is then the parent category of this category (uff).
 message Category {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
@@ -237,7 +246,7 @@ message Category {
 
 message Currency {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
@@ -281,7 +290,7 @@ message Currency {
 // An indicator of a data quality system ([DQSystem]).
 message DQIndicator {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
@@ -297,7 +306,7 @@ message DQIndicator {
 // ([DQSystem]).
 message DQScore {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
@@ -335,7 +344,7 @@ message DQScore {
 // internally the numeric values are used in the data model and calculations.
 message DQSystem {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
@@ -383,7 +392,7 @@ message DQSystem {
 // (see also the [FlowPropertyFactor] type).
 message Exchange {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
@@ -452,7 +461,7 @@ message Exchange {
 // that exchange unambiguously in a process.
 message ExchangeRef {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
@@ -465,7 +474,7 @@ message ExchangeRef {
 // product, a waste, a service etc.)
 message Flow {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
@@ -534,7 +543,7 @@ message Flow {
 // A crosswalk of flows from a source flow list to a target flow list.
 message FlowMap {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
@@ -567,49 +576,33 @@ message FlowMap {
 
 }
 
-// A mapping from one flow to another.
+// A mapping from a source flow to a target flow.
 message FlowMapEntry {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
-  // The reference ID (typically an UUID) of the entity.
-  string id = 2 [json_name = "@id"];
+  // Describes the source flow of the mapping.
+  FlowMapRef from = 2;
 
-  // The name of the entity.
-  string name = 3;
+  // Describes the target of the mapping.
+  FlowMapRef to = 3;
 
-  // The description of the entity.
-  string description = 4;
-
-  // A version number in MAJOR.MINOR.PATCH format where the MINOR and PATCH
-  // fields are optional and the fields may have leading zeros (so 01.00.00 is
-  // the same as 1.0.0 or 1).
-  string version = 5;
-
-  // The timestamp when the entity was changed the last time.
-  string last_change = 6;
-
-  // The flow, flow property, and unit of the source flow.
-  FlowMapRef from = 7;
-
-  // The flow, flow property, and unit of the target flow.
-  FlowMapRef to = 8;
-
-  // The factor to convert the original source flow to the target flow.
-  double conversion_factor = 9;
+  // The conversion factor to convert the amount of 1 unit of the source flow
+  // into the corresponding quantity of the target flow.
+  double conversion_factor = 4;
 
 }
 
-// Describes a the source or target flow of a flow mapping in a `FlowMap`. Such
-// a flow reference can also optionally specify the unit and flow property
-// (quantity) for which the mapping is valid. If the unit and quantity are not
-// given, the mapping is based on the reference unit of the reference flow
-// property of the respective flow.
+// Describes a source or target flow in a `FlowMappingEntry` of a `FlowMap`.
+// Such a flow reference can also optionally specify the unit and flow property
+// (quantity) for which the mapping is valid. If the unit or quantity is not
+// given, the mapping is based on the respective reference unit and reference
+// flow property of the flow.
 message FlowMapRef {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
@@ -635,7 +628,7 @@ message FlowMapRef {
 // A flow property is a quantity that can be used to express amounts of a flow.
 message FlowProperty {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
@@ -700,7 +693,7 @@ message FlowProperty {
 // value.)
 message FlowPropertyFactor {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
@@ -733,7 +726,7 @@ enum FlowPropertyType {
 // A result value for a flow; given in the reference unit of the flow.
 message FlowResult {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
@@ -769,7 +762,7 @@ enum FlowType {
 
 message ImpactCategory {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
@@ -817,7 +810,7 @@ message ImpactCategory {
 // A single characterisation factor of a LCIA category for a flow.
 message ImpactFactor {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
@@ -848,7 +841,7 @@ message ImpactFactor {
 // An impact assessment method.
 message ImpactMethod {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
@@ -892,7 +885,7 @@ message ImpactMethod {
 // A result value for an impact assessment category.
 message ImpactResult {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
@@ -907,7 +900,7 @@ message ImpactResult {
 // A location like a country, state, city, etc.
 message Location {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
@@ -1010,7 +1003,7 @@ enum ModelType {
 // or both) the normalization and weighting factor can be present or not.
 message NwFactor {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
@@ -1025,7 +1018,7 @@ message NwFactor {
 // A normalization and weighting set.
 message NwSet {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
@@ -1065,7 +1058,7 @@ message NwSet {
 // parameters can be used) but no uncertainty distribution.
 message Parameter {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
@@ -1121,7 +1114,7 @@ message Parameter {
 // A redefinition of a parameter in a product system.
 message ParameterRedef {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
@@ -1152,7 +1145,7 @@ message ParameterRedef {
 // calculation the baseline set is then taken by default.
 message ParameterRedefSet {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
@@ -1196,7 +1189,7 @@ enum ParameterScope {
 
 message Process {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
@@ -1288,7 +1281,7 @@ message Process {
 
 message ProcessDocumentation {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
@@ -1345,7 +1338,7 @@ message ProcessDocumentation {
 // A process link is a connection between two processes in a product system.
 message ProcessLink {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
@@ -1382,7 +1375,7 @@ enum ProcessType {
 // unit) ...
 message ProductSystem {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
@@ -1448,7 +1441,7 @@ message ProductSystem {
 
 message Project {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
@@ -1494,7 +1487,7 @@ message Project {
 // some meta-data like name, category path etc. that are useful to display.
 message Ref {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
@@ -1577,7 +1570,7 @@ enum RiskLevel {
 
 message SimpleResult {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
@@ -1591,7 +1584,7 @@ message SimpleResult {
 // indicator in a process.
 message SocialAspect {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
@@ -1617,7 +1610,7 @@ message SocialAspect {
 
 message SocialIndicator {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
@@ -1670,7 +1663,7 @@ message SocialIndicator {
 // A source is a literature reference.
 message Source {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
@@ -1721,7 +1714,7 @@ message Source {
 // the uncertainty distribution type different parameters could be used.
 message Uncertainty {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
@@ -1793,7 +1786,7 @@ enum UncertaintyType {
 // An unit of measure
 message Unit {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
@@ -1833,7 +1826,7 @@ message Unit {
 // A group of units that can be converted into each other.
 message UnitGroup {
 
-  // The type name of the respectiven entity.
+  // The type name of the respective entity.
   // This field is used for JSON-LD compatibility.
   string type = 1 [json_name = "@type"];
 
@@ -1875,4 +1868,3 @@ message UnitGroup {
   repeated Unit units = 11;
 
 }
-
